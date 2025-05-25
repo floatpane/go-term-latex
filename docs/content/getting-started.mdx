@@ -1,0 +1,114 @@
+---
+title: Getting Started
+---
+
+# Getting Started
+
+## Prerequisites
+
+A TeX backend in your PATH. Any one of these works:
+
+| Backend | What to install |
+|---------|----------------|
+| pdflatex (recommended) | `texlive-latex-base texlive-fonts-recommended` + `poppler-utils` on Linux; MacTeX on macOS |
+| tectonic | `tectonic` — downloads TeX packages automatically on first run |
+| latex + dvipng | `texlive-latex-base texlive-fonts-recommended dvipng` |
+
+```bash
+# Ubuntu / Debian
+sudo apt-get install texlive-latex-base texlive-fonts-recommended poppler-utils
+
+# Arch Linux
+sudo pacman -S texlive-core texlive-fontsextra poppler
+
+# macOS (Homebrew)
+brew install --cask mactex-no-gui poppler
+```
+
+## Install
+
+```bash
+go get github.com/floatpane/go-term-latex
+```
+
+Go 1.26+.
+
+## Render an equation
+
+```go
+package main
+
+import (
+    "os"
+    termlatex "github.com/floatpane/go-term-latex"
+)
+
+func main() {
+    err := termlatex.Display(os.Stdout, `\frac{-b \pm \sqrt{b^2-4ac}}{2a}`, termlatex.Options{})
+    if err != nil {
+        panic(err)
+    }
+}
+```
+
+`Display` wraps the equation in `\[\displaystyle …\]` — block math, centered,
+larger. For inline-scale math use `Inline`. For full control use `Render` and
+supply your own markup.
+
+## Pick a backend
+
+By default `Auto` tries PDFLaTeX → Tectonic → DVIPng in order. Pin one:
+
+```go
+opts := termlatex.Options{Backend: termlatex.Tectonic}
+```
+
+Or detect manually:
+
+```go
+b, err := termlatex.Detect()
+if err != nil {
+    log.Fatal("no TeX backend:", err)
+}
+fmt.Println(b) // "pdflatex", "tectonic", or "latex+dvipng"
+```
+
+## Protocol detection
+
+The terminal graphics protocol is auto-detected from `$TERM` and `$TERM_PROGRAM`.
+To pin it:
+
+```go
+opts := termlatex.Options{Protocol: termlatex.Kitty}
+```
+
+> [!TIP]
+> If the output looks like garbage characters, your terminal doesn't support
+> the auto-detected protocol. Try `Protocol: termlatex.HalfBlock` for a text-only
+> fallback that works everywhere.
+
+## Extra packages
+
+```go
+opts := termlatex.Options{
+    Packages: []string{"physics", "siunitx", "mhchem"},
+}
+termlatex.Display(os.Stdout, `\ket{\psi} = \alpha\ket{0} + \beta\ket{1}`, opts)
+```
+
+These are added as `\usepackage{…}` entries in the preamble. The packages must
+be installed in your TeX distribution.
+
+## Errors
+
+```go
+err := termlatex.Display(os.Stdout, equation, opts)
+switch {
+case errors.Is(err, termlatex.ErrNoBackend):
+    // No pdflatex/tectonic/dvipng in PATH
+case errors.Is(err, termlatex.ErrRenderFailed):
+    // TeX compilation or PNG conversion failed (check wrapped error for log)
+case errors.Is(err, termlatex.ErrDisplay):
+    // PNG produced but could not be sent to the terminal
+}
+```

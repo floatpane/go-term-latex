@@ -1,0 +1,31 @@
+# Keyword regex labels for issues.
+
+"bug": '\b([Bb]ug(s)?|[Ff]ix(es)?)\b'
+"enhancement": '\b([Ff]eat(s)?)\b'
+"documentation": '\b([Dd]ocumentation|[Dd]ocs|[Rr]eadme)\b'
+"question": '\b([Qq]uestion(s)?|[Hh]elp|[Hh]ow to)\b'
+"performance": '\b([Pp]erformance|[Oo]ptimiz(e|ation)|[Ss]peed)\b'
+"dependencies": '([Cc]hore\(deps\)|[Ff]ix\(deps\))'
+"ci": '\b([Cc]i|[Bb]uild|[Ww]orkflow)\b'
+"chore": '\b([Cc]hore|[Mm]aintenance|[Rr]efactor)\b'
+"security": '\b([Ss]ecurity|[Ss]hell.?escape|[Vv]ulnerabilit(y|ies))\b'
+
+"os/linux": '\b([Ll]inux|[Uu]buntu|[Dd]ebian|[Aa]rch)\b'
+"os/macos": '\b([Mm]ac[Oo][Ss]?|[Dd]arwin)\b'
+"os/windows": '\b([Ww]indows)\b'
+
+"term/kitty": '\b([Kk]itty|[Kk]itty [Gg]raphics)\b'
+"term/sixel": '\b([Ss]ixel)\b'
+"term/halfblock": '\b([Hh]alf.?block|[Uu]nicode)\b'
+
+"backend/pdflatex": '\b([Pp][Dd][Ff][Ll]a[Tt]e[Xx]|pdftoppm)\b'
+"backend/tectonic": '\b([Tt]ectonic)\b'
+"backend/dvipng": '\b(dvipng|[Dd][Vv][Ii])\b'
+
+"area/render": '\b([Rr]ender(ing)?|[Bb]ackend|[Pp]ipeline|[Tt]emp [Dd]ir)\b'
+"area/display": '\b([Dd]isplay|[Pp]rotocol|[Tt]erminal [Gg]raphics)\b'
+"area/template": '\b([Tt]emplate|standalone|preamble|[Uu]sepackage)\b'
+"area/backend": '\b([Bb]ackend|[Dd]etect|LookPath)\b'
+"area/errors": '\b([Ee]rror|ErrNo|ErrRender)\b'
+"area/docs": '\b([Dd]ocs|[Rr]eadme)\b'
+"area/ci": '\b([Gg]o[Rr]eleaser|[Gg]olangci|[Ww]orkflow)\b'

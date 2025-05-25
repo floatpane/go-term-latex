@@ -1,0 +1,45 @@
+---
+title: Introduction
+---
+
+# go-term-latex
+
+`go-term-latex` renders LaTeX math equations directly in the terminal — no
+browser, no GUI, no intermediate files the caller has to manage.
+
+```go
+termlatex.Display(os.Stdout, `\int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}`, termlatex.Options{})
+```
+
+That one call compiles the equation, converts the result to a tight-cropped PNG,
+and sends it to the terminal using the best available protocol: **Kitty
+graphics**, **Sixel**, or **Unicode half-block** characters as a fallback.
+
+## How it works
+
+1. The equation is wrapped in a minimal `standalone` LaTeX document (`amsmath`,
+   `amssymb`, `amsfonts` included).
+2. A TeX backend turns the document into a PDF or DVI: `pdflatex`, `tectonic`,
+   or `latex`+`dvipng` — whichever is installed.
+3. The raster stage converts to PNG: `pdftoppm` (from poppler) for PDF backends,
+   `dvipng` for the DVI backend.
+4. The PNG is passed to [`floatpane/termimage`](https://github.com/floatpane/termimage)
+   which handles protocol selection and escape-sequence encoding.
+
+## What this is not
+
+- **Not a full TeX runtime.** This is a thin Go wrapper around TeX tools you
+  provide. Go has no pure-Go LaTeX math renderer capable of production-quality
+  output; shelling out is the right call for quality.
+- **Not safe for untrusted input.** Even without `-shell-escape`, TeX documents
+  can read local files. See [Security](security).
+- **Not a streaming renderer.** Each call opens a temp dir, compiles, converts,
+  and cleans up. For a REPL or notebook-style interface, cache the PNG yourself
+  and re-display rather than recompiling on every redraw.
+
+## Sister projects
+
+| Project | Role |
+|---------|------|
+| [floatpane/termimage](https://github.com/floatpane/termimage) | Terminal image display layer (Kitty/Sixel/HalfBlock). |
+| [floatpane/matcha](https://github.com/floatpane/matcha) | Mail client — potential consumer for message previews with embedded math. |

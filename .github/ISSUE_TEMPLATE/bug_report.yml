@@ -1,0 +1,85 @@
+name: Bug Report
+description: Create a report to help us improve
+title: "BUG: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: To reproduce
+      description: A minimal Go snippet or the LaTeX equation that triggers the bug.
+      placeholder: |
+        err := termlatex.Display(os.Stdout, `\frac{1}{2}`, termlatex.Options{})
+        // → unexpected error / blank output / panic
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operation
+    attributes:
+      label: Stage where the bug occurs
+      options:
+        - Backend detection (Detect)
+        - LaTeX compilation (pdflatex/tectonic/latex)
+        - PNG conversion (pdftoppm/dvipng)
+        - Terminal display (Kitty/Sixel/HalfBlock)
+        - Other / unsure
+    validations:
+      required: true
+
+  - type: input
+    id: lib-version
+    attributes:
+      label: go-term-latex version
+      placeholder: "e.g. v0.1.0 or commit SHA"
+
+  - type: input
+    id: go-version
+    attributes:
+      label: Go version
+      description: "Run `go version`"
+      placeholder: "e.g. go1.26.3"
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: backend
+    attributes:
+      label: TeX backend and version
+      placeholder: "e.g. pdflatex (TeX Live 2024), tectonic 0.15.0, latex+dvipng 1.17"
+
+  - type: input
+    id: terminal
+    attributes:
+      label: Terminal and protocol
+      placeholder: "e.g. kitty 0.36 (Kitty protocol), foot 1.17 (Sixel), WezTerm (Kitty)"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context

@@ -1,0 +1,80 @@
+---
+title: API Reference
+---
+
+# API Reference
+
+Full reference on [pkg.go.dev](https://pkg.go.dev/github.com/floatpane/go-term-latex).
+
+## Render functions
+
+```go
+func Display(w io.Writer, equation string, opts Options) error
+func Inline(w io.Writer, equation string, opts Options) error
+func Render(w io.Writer, equation string, opts Options) error
+```
+
+| Function | LaTeX wrapping |
+|----------|---------------|
+| `Display` | `\[\displaystyle equation\]` — block math, full size |
+| `Inline` | `$equation$` — inline scale |
+| `Render` | verbatim — you supply all markup |
+
+All three compile the equation, produce a PNG, and write terminal graphics to `w`.
+
+## Options
+
+```go
+type Options struct {
+    Backend    Backend  // Auto (default), PDFLaTeX, Tectonic, DVIPng
+    Protocol   Protocol // AutoProtocol, Kitty, Sixel, HalfBlock
+    DPI        int      // PNG render resolution; default 150
+    MaxWidth   int      // pixel cap before scaling to terminal; 0 = fit
+    MaxHeight  int      // pixel cap; 0 = fit
+    Packages   []string // extra \usepackage entries in the preamble
+}
+```
+
+## Backend
+
+```go
+type Backend int
+const (
+    Auto      Backend = iota // try PDFLaTeX → Tectonic → DVIPng
+    PDFLaTeX                 // pdflatex + pdftoppm
+    Tectonic                 // tectonic + pdftoppm
+    DVIPng                   // latex + dvipng
+)
+
+func Detect() (Backend, error)
+func (b Backend) String() string
+```
+
+## Protocol
+
+Re-exported from [`floatpane/termimage`](https://pkg.go.dev/github.com/floatpane/termimage):
+
+```go
+type Protocol = termimage.Protocol
+
+const (
+    AutoProtocol Protocol = termimage.Auto // detect from $TERM
+    HalfBlock             = termimage.HalfBlock
+    Sixel                 = termimage.Sixel
+    Kitty                 = termimage.Kitty
+)
+```
+
+## Errors
+
+```go
+var (
+    ErrNoBackend    = errors.New("no LaTeX backend found in PATH")
+    ErrRenderFailed = errors.New("LaTeX render failed")
+    ErrDisplay      = errors.New("terminal display failed")
+)
+```
+
+All are matchable with `errors.Is`. `ErrRenderFailed` wraps the tool's combined
+stdout/stderr (last 20 lines) so you can surface the TeX error message to the
+user.

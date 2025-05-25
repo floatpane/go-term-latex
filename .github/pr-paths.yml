@@ -1,0 +1,55 @@
+"area/render":
+  - changed-files:
+      - any-glob-to-any-file:
+          - render_pdflatex.go
+          - render_tectonic.go
+          - render_dvipng.go
+
+"area/display":
+  - changed-files:
+      - any-glob-to-any-file:
+          - termlatex.go
+
+"area/template":
+  - changed-files:
+      - any-glob-to-any-file:
+          - template.go
+
+"area/backend":
+  - changed-files:
+      - any-glob-to-any-file:
+          - backend.go
+
+"area/errors":
+  - changed-files:
+      - any-glob-to-any-file:
+          - errors.go
+
+"area/docs":
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/**
+          - README.md
+          - "**/*.md"
+
+"area/ci":
+  - changed-files:
+      - any-glob-to-any-file:
+          - .goreleaser*.yml
+          - .golangci.yml
+
+"ci":
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/workflows/**
+          - .github/labeler-config*.yml
+          - .github/labels.yml
+          - .github/pr-paths.yml
+
+"dependencies":
+  - changed-files:
+      - any-glob-to-any-file:
+          - go.mod
+          - go.sum
+          - docs/package.json
+          - docs/package-lock.json

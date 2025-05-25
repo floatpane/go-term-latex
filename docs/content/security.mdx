@@ -1,0 +1,59 @@
+---
+title: Security
+---
+
+# Security
+
+## Shell escape is OFF
+
+`pdflatex` and `latex` are invoked **without** `-shell-escape`:
+
+```
+pdflatex -interaction=nonstopmode -halt-on-error ...
+latex    -interaction=nonstopmode -halt-on-error ...
+```
+
+This means the compiled document cannot execute arbitrary shell commands via
+`\write18` or `\immediate\write18`.
+
+`tectonic` runs in its default mode, which also does not enable shell escape.
+
+## TeX can still read local files
+
+Even without shell escape, a TeX document can read local files:
+
+```latex
+\input{/etc/passwd}
+\openin0=/etc/passwd
+```
+
+If an attacker controls the equation string, they can exfiltrate local file
+contents into the rendered output.
+
+> [!CAUTION]
+> **Do not pass untrusted LaTeX to this library.** This includes user-supplied
+> input, equations from an untrusted network source, or anything that has not
+> been validated or sandboxed by your application.
+
+If you need to render user-supplied math, consider:
+- Parsing the input through a known-good subset (e.g. KaTeX's restricted mode)
+  before passing it to this library.
+- Running the TeX compilation inside a container or VM with no access to
+  sensitive files.
+- Using a pure-Go or WASM math renderer that does not need filesystem access.
+
+## Temp directory
+
+Each render creates a temp directory under `os.TempDir()` and removes it with
+`os.RemoveAll` on return (including error return). The temp dir contains only
+the `.tex` source and the intermediate PDF/DVI/PNG files.
+
+If the process is killed before cleanup, the temp directory may be left on disk.
+This is a resource-leak concern, not a security concern (the content is not
+sensitive unless the equation itself is).
+
+## Reporting
+
+Report security issues privately — see
+[SECURITY.md](https://github.com/floatpane/go-term-latex/blob/master/SECURITY.md).
+Do not open a public issue for a vulnerability.

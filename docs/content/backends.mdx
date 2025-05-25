@@ -1,0 +1,86 @@
+---
+title: Backends
+---
+
+# Backends
+
+A backend is the TeX-to-PNG pipeline. Three are supported; pick the one that
+matches your environment.
+
+## PDFLaTeX (default)
+
+```
+pdflatex → PDF → pdftoppm → PNG
+```
+
+`pdflatex` is part of every major TeX distribution (TeX Live, MiKTeX, MacTeX).
+`pdftoppm` is part of poppler-utils. This is the recommended backend because
+`pdflatex` handles the widest range of packages.
+
+**Packages:** `texlive-latex-base` + `texlive-fonts-recommended` + `poppler-utils`
+
+**DPI:** controlled by `Options.DPI` (default 150). The `-r` flag is passed to
+`pdftoppm`.
+
+**Pin it:**
+
+```go
+termlatex.Options{Backend: termlatex.PDFLaTeX}
+```
+
+## Tectonic
+
+```
+tectonic → PDF → pdftoppm → PNG
+```
+
+[Tectonic](https://tectonic-typesetting.github.io) is a self-contained TeX
+engine that downloads the packages it needs on first run. No manual TeX
+installation — just install the `tectonic` binary.
+
+**Packages:** just `tectonic` + `poppler-utils`
+
+**Trade-off:** first render may take a few seconds while TeX packages download;
+subsequent renders hit the cache and are fast.
+
+**Pin it:**
+
+```go
+termlatex.Options{Backend: termlatex.Tectonic}
+```
+
+## DVIPng
+
+```
+latex (DVI mode) → DVI → dvipng → PNG
+```
+
+`latex` produces a DVI file; `dvipng` converts it directly to PNG. This is
+the classic pipeline and produces the sharpest output at low DPI because dvipng
+knows the TeX metrics directly.
+
+**Packages:** `texlive-latex-base` + `texlive-fonts-recommended` + `dvipng`
+
+**Limitation:** some packages (TikZ, PGFPlots, packages that load PDFs) require
+PDF mode and won't work here. `pdflatex`/`tectonic` is the right choice for
+those.
+
+**Pin it:**
+
+```go
+termlatex.Options{Backend: termlatex.DVIPng}
+```
+
+## Auto-detection order
+
+When `Backend` is `Auto` (the default), `Detect()` checks:
+
+1. `pdflatex` + `pdftoppm` both in PATH → PDFLaTeX
+2. `tectonic` + `pdftoppm` both in PATH → Tectonic
+3. `latex` + `dvipng` both in PATH → DVIPng
+4. None found → `ErrNoBackend`
+
+> [!NOTE]
+> Detection uses `exec.LookPath` — it checks PATH only, not TeX
+> distribution registries. If a tool is installed but not in PATH, pin the
+> backend explicitly and make sure the binary is accessible.
