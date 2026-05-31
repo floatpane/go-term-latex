@@ -8,7 +8,11 @@ export const metadata: Metadata = {
 		"Render LaTeX math equations in the terminal. Kitty graphics, Sixel, and Unicode half-block fallback. Supports pdflatex, tectonic, and dvipng backends.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
 	return (
 		<html lang="en">
 			<body>
@@ -25,3 +29,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 		</html>
 	);
 }
+
+export const viewport = { width: "device-width", initialScale: 1 };
