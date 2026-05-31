@@ -23,7 +23,10 @@ graphics**, **Sixel**, or **Unicode half-block** characters as a fallback.
    or `latex`+`dvipng` — whichever is installed.
 3. The raster stage converts to PNG: `pdftoppm` (from poppler) for PDF backends,
    `dvipng` for the DVI backend.
-4. The PNG is passed to [`floatpane/termimage`](https://github.com/floatpane/termimage)
+4. The black-on-white PNG is recolored to match the terminal theme — detected by
+   querying the terminal (OSC 10 / OSC 11) — so glyphs adopt the foreground
+   color and the background blends in. See [Getting Started](getting-started).
+5. The PNG is passed to [`floatpane/termimage`](https://github.com/floatpane/termimage)
    which handles protocol selection and escape-sequence encoding.
 
 ## What this is not

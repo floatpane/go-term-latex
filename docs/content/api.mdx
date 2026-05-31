@@ -26,13 +26,51 @@ All three compile the equation, produce a PNG, and write terminal graphics to `w
 
 ```go
 type Options struct {
-    Backend    Backend  // Auto (default), PDFLaTeX, Tectonic, DVIPng
-    Protocol   Protocol // AutoProtocol, Kitty, Sixel, HalfBlock
-    DPI        int      // PNG render resolution; default 150
-    MaxWidth   int      // pixel cap before scaling to terminal; 0 = fit
-    MaxHeight  int      // pixel cap; 0 = fit
-    Packages   []string // extra \usepackage entries in the preamble
+    Backend    Backend     // Auto (default), PDFLaTeX, Tectonic, DVIPng
+    Protocol   Protocol    // AutoProtocol, Kitty, Sixel, HalfBlock
+    DPI        int         // PNG render resolution; default 150
+    MaxWidth   int         // pixel cap before scaling to terminal; 0 = fit
+    MaxHeight  int         // pixel cap; 0 = fit
+    Packages   []string    // extra \usepackage entries in the preamble
+    Foreground color.Color // glyph color; nil = auto-detect from terminal
+    Background color.Color // background color; nil = auto-detect from terminal
+    NoTheme    bool        // skip recoloring; display raw black-on-white
 }
+```
+
+## Theme matching
+
+The TeX backend renders black glyphs on white. Before display the PNG is
+**recolored** to match the terminal so it never shows a white box on a dark
+background.
+
+```go
+type Theme struct {
+    Fg color.Color // glyph color
+    Bg color.Color // background color
+}
+
+func DetectTheme() Theme
+```
+
+`DetectTheme` queries the controlling terminal over `/dev/tty` for its
+foreground (OSC 10) and background (OSC 11) colors, parsing the
+`rgb:RRRR/GGGG/BBBB` reply. If the terminal does not answer it falls back to
+`$COLORFGBG`, then to light-on-dark.
+
+Glyph pixels are mapped to `Fg`, paper pixels to `Bg`, antialiased edges blended
+between — the output is fully opaque, so it works in every protocol.
+
+- `Options.Foreground` / `Options.Background` override either color. A nil field
+  is auto-detected.
+- `Options.NoTheme = true` disables recoloring entirely.
+
+```go
+// Force cyan glyphs on a near-black background.
+termlatex.Display(os.Stdout, `x^2`, termlatex.Options{
+    Foreground: color.NRGBA{R: 0, G: 200, B: 255, A: 255},
+    Background: color.NRGBA{R: 20, G: 20, B: 20, A: 255},
+})
 ```
 
 ## Backend

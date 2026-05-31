@@ -87,6 +87,36 @@ opts := termlatex.Options{Protocol: termlatex.Kitty}
 > the auto-detected protocol. Try `Protocol: termlatex.HalfBlock` for a text-only
 > fallback that works everywhere.
 
+## Theme matching
+
+The TeX backend always renders black glyphs on white. Before display the image
+is recolored to match your terminal, so a dark terminal shows light glyphs on a
+dark background instead of a glaring white box.
+
+Colors are detected by querying the terminal (OSC 10 for foreground, OSC 11 for
+background), falling back to `$COLORFGBG` and then light-on-dark. The default
+`Options{}` does this automatically — no configuration needed.
+
+Override the colors, or turn recoloring off:
+
+```go
+import "image/color"
+
+// Pin glyph and background colors.
+termlatex.Display(os.Stdout, `x^2`, termlatex.Options{
+    Foreground: color.NRGBA{R: 0, G: 200, B: 255, A: 255},
+    Background: color.NRGBA{R: 20, G: 20, B: 20, A: 255},
+})
+
+// Display the raw black-on-white render unchanged.
+termlatex.Display(os.Stdout, `x^2`, termlatex.Options{NoTheme: true})
+```
+
+> [!TIP]
+> Detection needs a terminal that answers OSC color queries (Kitty, iTerm2,
+> foot, most modern emulators do). When output is piped or the terminal stays
+> silent, the dark fallback is used.
+
 ## Extra packages
 
 ```go

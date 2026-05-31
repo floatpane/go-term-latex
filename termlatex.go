@@ -49,7 +49,7 @@ type Options struct {
 	// color is auto-detected from the terminal (OSC 10/11), falling back to a
 	// dark theme. See NoTheme to disable recoloring entirely.
 	Foreground color.Color
-	Background  color.Color
+	Background color.Color
 
 	// NoTheme disables terminal color detection and recoloring; the raw
 	// black-on-white render is displayed as-is.

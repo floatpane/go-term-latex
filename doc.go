@@ -22,6 +22,20 @@
 // [Detect] returns the first available one. Set [Options.Backend] to pin a
 // specific backend.
 //
+// # Theme matching
+//
+// The TeX backend renders black glyphs on white. Before display the PNG is
+// recolored to match the terminal: [DetectTheme] queries the terminal for its
+// foreground and background colors (OSC 10 / OSC 11), and glyphs are remapped
+// to the foreground while the paper becomes the background. The result is fully
+// opaque, so it blends correctly in every protocol — no white box on a dark
+// terminal.
+//
+// Detection falls back to $COLORFGBG, then to light-on-dark, when the terminal
+// does not answer. Override the colors with [Options.Foreground] and
+// [Options.Background], or set [Options.NoTheme] to display the raw
+// black-on-white render unchanged.
+//
 // # Shell escape
 //
 // pdflatex and latex are invoked with -interaction=nonstopmode and

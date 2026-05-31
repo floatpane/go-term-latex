@@ -65,8 +65,20 @@ termlatex.Options{
     MaxWidth:   800,                // pixel cap before scaling (0 = fit terminal)
     MaxHeight:  400,
     Packages:   []string{"physics", "siunitx"}, // extra \usepackage entries
+    Foreground: color.NRGBA{0, 200, 255, 255},  // glyph color; nil = auto-detect
+    Background: color.NRGBA{20, 20, 20, 255},    // bg color; nil = auto-detect
+    NoTheme:    false,              // true = raw black-on-white, no recolor
 }
 ```
+
+### Theme matching
+
+The backend renders black glyphs on white. Before display the PNG is recolored
+to match your terminal — glyphs take the terminal foreground, the paper takes
+the background — so there's no white box on a dark terminal. Colors are detected
+by querying the terminal (OSC 10 / OSC 11), falling back to `$COLORFGBG` and
+then light-on-dark. Override with `Foreground`/`Background`, or set
+`NoTheme: true` to keep the raw black-on-white render.
 
 ### Backend detection
 
@@ -86,7 +98,10 @@ fmt.Println("using", b) // "pdflatex", "tectonic", or "latex+dvipng"
    (no `--shell-escape`, so the document cannot run arbitrary shell commands).
 3. The PDF or DVI is converted to a tight-cropped PNG via `pdftoppm` or
    `dvipng`.
-4. The PNG is sent to the terminal via
+4. The black-on-white PNG is recolored to match the terminal theme (detected
+   via OSC 10 / OSC 11), so glyphs use the terminal foreground and the
+   background blends in.
+5. The PNG is sent to the terminal via
    [termimage](https://github.com/floatpane/termimage) using the
    best available protocol (Kitty → Sixel → HalfBlock).
 
