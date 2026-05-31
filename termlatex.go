@@ -3,6 +3,7 @@ package termlatex
 import (
 	"encoding/base64"
 	"fmt"
+	"image/color"
 	"io"
 	"path/filepath"
 
@@ -42,6 +43,33 @@ type Options struct {
 	// Packages is a list of extra LaTeX packages added to the standalone
 	// document preamble, e.g. []string{"physics", "siunitx"}.
 	Packages []string
+
+	// Foreground and Background override the glyph and background colors used
+	// when recoloring the rendered equation. When either is nil, the missing
+	// color is auto-detected from the terminal (OSC 10/11), falling back to a
+	// dark theme. See NoTheme to disable recoloring entirely.
+	Foreground color.Color
+	Background  color.Color
+
+	// NoTheme disables terminal color detection and recoloring; the raw
+	// black-on-white render is displayed as-is.
+	NoTheme bool
+}
+
+// theme resolves the colors to recolor with, honoring explicit overrides and
+// otherwise detecting from the terminal.
+func (o Options) theme() Theme {
+	if o.Foreground != nil && o.Background != nil {
+		return Theme{Fg: o.Foreground, Bg: o.Background}
+	}
+	t := DetectTheme()
+	if o.Foreground != nil {
+		t.Fg = o.Foreground
+	}
+	if o.Background != nil {
+		t.Bg = o.Background
+	}
+	return t
 }
 
 func (o Options) dpi() int {
@@ -57,6 +85,12 @@ func Render(w io.Writer, equation string, opts Options) error {
 	pngBytes, err := renderPNG(equation, opts)
 	if err != nil {
 		return err
+	}
+	if !opts.NoTheme {
+		pngBytes, err = recolor(pngBytes, opts.theme())
+		if err != nil {
+			return err
+		}
 	}
 	uri := "data:image/png;base64," + base64.StdEncoding.EncodeToString(pngBytes)
 	proto := opts.Protocol
