@@ -1,6 +1,7 @@
 package termlatex
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 )
@@ -24,15 +25,16 @@ const (
 
 func (b Backend) String() string {
 	switch b {
+	case Auto:
+		return autoName
 	case PDFLaTeX:
 		return "pdflatex"
 	case Tectonic:
 		return "tectonic"
 	case DVIPng:
 		return "latex+dvipng"
-	default:
-		return "auto"
 	}
+	return autoName
 }
 
 // Detect returns the first available backend in preference order:
@@ -63,7 +65,7 @@ func allInPath(bins ...string) bool {
 }
 
 // renderPNG dispatches to the appropriate backend renderer.
-func renderPNG(equation string, opts Options) ([]byte, error) {
+func renderPNG(ctx context.Context, equation string, opts Options) ([]byte, error) {
 	b := opts.Backend
 	if b == Auto {
 		var err error
@@ -74,12 +76,14 @@ func renderPNG(equation string, opts Options) ([]byte, error) {
 	}
 	switch b {
 	case PDFLaTeX:
-		return renderPDFLaTeX(equation, opts)
+		return renderPDFLaTeX(ctx, equation, opts)
 	case Tectonic:
-		return renderTectonic(equation, opts)
+		return renderTectonic(ctx, equation, opts)
 	case DVIPng:
-		return renderDVIPng(equation, opts)
-	default:
-		return nil, fmt.Errorf("%w: unknown backend %d", ErrNoBackend, b)
+		return renderDVIPng(ctx, equation, opts)
+	case Auto:
+		// Unreachable: Auto is resolved above.
+		return nil, fmt.Errorf("%w: unresolved auto backend", ErrNoBackend)
 	}
+	return nil, fmt.Errorf("%w: unknown backend %d", ErrNoBackend, b)
 }

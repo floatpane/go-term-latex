@@ -1,6 +1,7 @@
 package termlatex
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -8,7 +9,7 @@ import (
 	"strconv"
 )
 
-func renderDVIPng(equation string, opts Options) ([]byte, error) {
+func renderDVIPng(ctx context.Context, equation string, opts Options) ([]byte, error) {
 	tmpDir, err := os.MkdirTemp("", "termlatex-*")
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrRenderFailed, err)
@@ -20,7 +21,7 @@ func renderDVIPng(equation string, opts Options) ([]byte, error) {
 		return nil, fmt.Errorf("%w: %w", ErrRenderFailed, err)
 	}
 
-	cmd := exec.Command("latex",
+	cmd := exec.CommandContext(ctx, "latex",
 		"-interaction=nonstopmode",
 		"-halt-on-error",
 		"-output-directory", tmpDir,
@@ -37,7 +38,7 @@ func renderDVIPng(equation string, opts Options) ([]byte, error) {
 
 	// dvipng -T tight crops tightly to the content; -bg Transparent works in
 	// many terminals but we default to white for maximum compatibility.
-	cmd = exec.Command("dvipng",
+	cmd = exec.CommandContext(ctx, "dvipng",
 		"-T", "tight",
 		"-D", strconv.Itoa(opts.dpi()),
 		"-bg", "White",

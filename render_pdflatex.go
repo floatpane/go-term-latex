@@ -1,6 +1,7 @@
 package termlatex
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -8,7 +9,7 @@ import (
 	"strconv"
 )
 
-func renderPDFLaTeX(equation string, opts Options) ([]byte, error) {
+func renderPDFLaTeX(ctx context.Context, equation string, opts Options) ([]byte, error) {
 	tmpDir, err := os.MkdirTemp("", "termlatex-*")
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrRenderFailed, err)
@@ -20,7 +21,7 @@ func renderPDFLaTeX(equation string, opts Options) ([]byte, error) {
 		return nil, fmt.Errorf("%w: %w", ErrRenderFailed, err)
 	}
 
-	cmd := exec.Command("pdflatex",
+	cmd := exec.CommandContext(ctx, "pdflatex",
 		"-interaction=nonstopmode",
 		"-halt-on-error",
 		"-output-directory", tmpDir,
@@ -35,7 +36,7 @@ func renderPDFLaTeX(equation string, opts Options) ([]byte, error) {
 	pdfFile := filepath.Join(tmpDir, "eq.pdf")
 	outBase := filepath.Join(tmpDir, "out")
 
-	cmd = exec.Command("pdftoppm",
+	cmd = exec.CommandContext(ctx, "pdftoppm",
 		"-png",
 		"-r", strconv.Itoa(opts.dpi()),
 		"-singlefile",

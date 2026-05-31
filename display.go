@@ -25,7 +25,7 @@ func displayImage(w io.Writer, img *image.NRGBA, opts Options) error {
 		err = renderKitty(w, img)
 	case Sixel:
 		err = renderSixel(w, img)
-	default:
+	case HalfBlock, AutoProtocol:
 		err = renderHalfBlock(w, img)
 	}
 	if err != nil {

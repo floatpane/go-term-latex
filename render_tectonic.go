@@ -1,6 +1,7 @@
 package termlatex
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -8,7 +9,7 @@ import (
 	"strconv"
 )
 
-func renderTectonic(equation string, opts Options) ([]byte, error) {
+func renderTectonic(ctx context.Context, equation string, opts Options) ([]byte, error) {
 	tmpDir, err := os.MkdirTemp("", "termlatex-*")
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrRenderFailed, err)
@@ -21,7 +22,7 @@ func renderTectonic(equation string, opts Options) ([]byte, error) {
 	}
 
 	// Tectonic writes output next to the input file; --outdir puts it in tmpDir.
-	cmd := exec.Command("tectonic", "--outdir", tmpDir, texFile)
+	cmd := exec.CommandContext(ctx, "tectonic", "--outdir", tmpDir, texFile)
 	cmd.Dir = tmpDir
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -31,7 +32,7 @@ func renderTectonic(equation string, opts Options) ([]byte, error) {
 	pdfFile := filepath.Join(tmpDir, "eq.pdf")
 	outBase := filepath.Join(tmpDir, "out")
 
-	cmd = exec.Command("pdftoppm",
+	cmd = exec.CommandContext(ctx, "pdftoppm",
 		"-png",
 		"-r", strconv.Itoa(opts.dpi()),
 		"-singlefile",

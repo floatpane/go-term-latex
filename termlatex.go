@@ -1,6 +1,7 @@
 package termlatex
 
 import (
+	"context"
 	"fmt"
 	"image"
 	"image/color"
@@ -69,7 +70,7 @@ func (o Options) dpi() int {
 // Render writes equation to w as terminal graphics. equation is passed to the
 // LaTeX document verbatim — callers control all markup.
 func Render(w io.Writer, equation string, opts Options) error {
-	pngBytes, err := renderPNG(equation, opts)
+	pngBytes, err := renderPNG(context.Background(), equation, opts)
 	if err != nil {
 		return err
 	}

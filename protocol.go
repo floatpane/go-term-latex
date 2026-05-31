@@ -5,6 +5,9 @@ import (
 	"strings"
 )
 
+// autoName is the String() value for the auto/default Protocol and Backend.
+const autoName = "auto"
+
 // Protocol selects the terminal graphics protocol used to display an equation.
 type Protocol int
 
@@ -22,15 +25,16 @@ const (
 
 func (p Protocol) String() string {
 	switch p {
+	case AutoProtocol:
+		return autoName
 	case Kitty:
 		return "kitty"
 	case Sixel:
 		return "sixel"
 	case HalfBlock:
 		return "halfblock"
-	default:
-		return "auto"
 	}
+	return autoName
 }
 
 // bestProtocol returns the best protocol the current terminal supports based on
