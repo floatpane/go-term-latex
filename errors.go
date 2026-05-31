@@ -11,7 +11,7 @@ var (
 	// exits with an error. The wrapped error includes the tool's output.
 	ErrRenderFailed = errors.New("LaTeX render failed")
 
-	// ErrDisplay is returned when the rendered PNG cannot be sent to the
-	// terminal (e.g. the writer is not a TTY or termimage returns an error).
+	// ErrDisplay is returned when the rendered image cannot be written to the
+	// terminal as graphics (e.g. the writer returns an error).
 	ErrDisplay = errors.New("terminal display failed")
 )

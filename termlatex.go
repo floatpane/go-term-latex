@@ -1,24 +1,11 @@
 package termlatex
 
 import (
-	"encoding/base64"
 	"fmt"
+	"image"
 	"image/color"
 	"io"
 	"path/filepath"
-
-	termimage "github.com/floatpane/termimage"
-)
-
-// Protocol is re-exported from termimage for convenience.
-type Protocol = termimage.Protocol
-
-// Terminal graphics protocol constants. AutoProtocol detects from $TERM.
-const (
-	AutoProtocol Protocol = termimage.Auto
-	HalfBlock             = termimage.HalfBlock
-	Sixel                 = termimage.Sixel
-	Kitty                 = termimage.Kitty
 )
 
 // Options configure rendering and display.
@@ -86,25 +73,18 @@ func Render(w io.Writer, equation string, opts Options) error {
 	if err != nil {
 		return err
 	}
-	if !opts.NoTheme {
-		pngBytes, err = recolor(pngBytes, opts.theme())
-		if err != nil {
-			return err
-		}
+
+	var img *image.NRGBA
+	if opts.NoTheme {
+		img, err = decodePNG(pngBytes)
+	} else {
+		img, err = recolor(pngBytes, opts.theme())
 	}
-	uri := "data:image/png;base64," + base64.StdEncoding.EncodeToString(pngBytes)
-	proto := opts.Protocol
-	if proto == 0 {
-		proto = AutoProtocol
+	if err != nil {
+		return err
 	}
-	if err := termimage.Display(w, uri, termimage.Options{
-		Protocol:  proto,
-		MaxWidth:  opts.MaxWidth,
-		MaxHeight: opts.MaxHeight,
-	}); err != nil {
-		return fmt.Errorf("%w: %w", ErrDisplay, err)
-	}
-	return nil
+
+	return displayImage(w, img, opts)
 }
 
 // Display renders equation as block (display) math — equivalent to wrapping

@@ -90,18 +90,23 @@ func (b Backend) String() string
 
 ## Protocol
 
-Re-exported from [`floatpane/termimage`](https://pkg.go.dev/github.com/floatpane/termimage):
+Protocol detection and encoding are built in — no external display dependency.
 
 ```go
-type Protocol = termimage.Protocol
+type Protocol int
 
 const (
-    AutoProtocol Protocol = termimage.Auto // detect from $TERM
-    HalfBlock             = termimage.HalfBlock
-    Sixel                 = termimage.Sixel
-    Kitty                 = termimage.Kitty
+    AutoProtocol Protocol = iota // detect from $TERM / $TERM_PROGRAM
+    HalfBlock                    // Unicode ▀, works everywhere
+    Sixel                        // DEC Sixel
+    Kitty                        // Kitty graphics protocol
 )
+
+func (p Protocol) String() string
 ```
+
+`AutoProtocol` picks Kitty (kitty, Ghostty, WezTerm), Sixel (foot, mlterm,
+contour, `*sixel*` terminals), or HalfBlock otherwise.
 
 ## Errors
 

@@ -14,9 +14,10 @@
 
 `go-term-latex` turns a LaTeX math equation into terminal graphics in one call.
 It shells out to a TeX backend installed on the host — `pdflatex`, `tectonic`,
-or `latex`+`dvipng` — to produce a tight-cropped PNG, then displays it via
-[`floatpane/termimage`](https://github.com/floatpane/termimage) using the best
-protocol the terminal supports (Kitty graphics, Sixel, or Unicode half-block).
+or `latex`+`dvipng` — to produce a tight-cropped PNG, recolors it to match the
+terminal theme, and writes it directly using the best protocol the terminal
+supports (Kitty graphics, Sixel, or Unicode half-block). No external display
+dependency — protocol detection and encoding are built in.
 
 ## Install
 
@@ -101,9 +102,9 @@ fmt.Println("using", b) // "pdflatex", "tectonic", or "latex+dvipng"
 4. The black-on-white PNG is recolored to match the terminal theme (detected
    via OSC 10 / OSC 11), so glyphs use the terminal foreground and the
    background blends in.
-5. The PNG is sent to the terminal via
-   [termimage](https://github.com/floatpane/termimage) using the
-   best available protocol (Kitty → Sixel → HalfBlock).
+5. The PNG is scaled to fit the terminal and written using the best available
+   protocol (Kitty → Sixel → HalfBlock), detected from `$TERM` /
+   `$TERM_PROGRAM`. Encoding is built in — no external display dependency.
 
 ## Documentation
 

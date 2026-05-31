@@ -8,11 +8,11 @@ import (
 	"image/png"
 )
 
-// recolor remaps a black-on-white render to the given theme: white background
-// pixels become bg, black glyph pixels become fg, and antialiased edges are
-// linearly blended between the two. The result is fully opaque so it displays
-// correctly in every terminal protocol.
-func recolor(pngBytes []byte, t Theme) ([]byte, error) {
+// recolor decodes a black-on-white render and remaps it to the given theme:
+// white background pixels become bg, black glyph pixels become fg, and
+// antialiased edges are linearly blended between the two. The result is fully
+// opaque so it displays correctly in every terminal protocol.
+func recolor(pngBytes []byte, t Theme) (*image.NRGBA, error) {
 	src, err := png.Decode(bytes.NewReader(pngBytes))
 	if err != nil {
 		return nil, fmt.Errorf("%w: decode png: %w", ErrRenderFailed, err)
@@ -36,12 +36,27 @@ func recolor(pngBytes []byte, t Theme) ([]byte, error) {
 			})
 		}
 	}
+	return dst, nil
+}
 
-	var out bytes.Buffer
-	if err := png.Encode(&out, dst); err != nil {
-		return nil, fmt.Errorf("%w: encode png: %w", ErrRenderFailed, err)
+// decodePNG decodes raw PNG bytes into an *image.NRGBA, used when theme
+// recoloring is disabled.
+func decodePNG(pngBytes []byte) (*image.NRGBA, error) {
+	src, err := png.Decode(bytes.NewReader(pngBytes))
+	if err != nil {
+		return nil, fmt.Errorf("%w: decode png: %w", ErrRenderFailed, err)
 	}
-	return out.Bytes(), nil
+	if nrgba, ok := src.(*image.NRGBA); ok {
+		return nrgba, nil
+	}
+	b := src.Bounds()
+	dst := image.NewNRGBA(b)
+	for y := b.Min.Y; y < b.Max.Y; y++ {
+		for x := b.Min.X; x < b.Max.X; x++ {
+			dst.Set(x, y, src.At(x, y))
+		}
+	}
+	return dst, nil
 }
 
 // lerp blends fg→bg by t/255 (t=0 → fg, t=255 → bg).

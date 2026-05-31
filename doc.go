@@ -3,7 +3,9 @@
 //
 // Rendering is delegated to a TeX backend installed on the host — pdflatex,
 // tectonic, or latex+dvipng, tried in that order. The backend produces a PNG,
-// which is displayed through [github.com/floatpane/termimage].
+// which is recolored to the terminal theme and written directly as Kitty
+// graphics, Sixel, or Unicode half-block characters — no external display
+// dependency.
 //
 // # Quick start
 //
