@@ -1,6 +1,6 @@
 module github.com/floatpane/go-term-latex
 
-go 1.26
+go 1.26.4
 
 require (
 	golang.org/x/image v0.41.0
